@@ -139,34 +139,38 @@ function addMessage(room, username, message, push = false, filePath = null) {
 
 
 function subscribe(uri) {
-    var retryTime = 1;
+    let ws;
+    let retryTime = 1;
 
     function connect(uri) {
-        const events = new EventSource(uri);
+        ws = new WebSocket(uri);
 
-        events.addEventListener("message", (ev) => {
-            console.log("raw data", JSON.stringify(ev.data));
-            console.log("decoded data", JSON.stringify(JSON.parse(ev.data)));
-            const msg = JSON.parse(ev.data);
-            if (!"message" in msg || !"room" in msg || !"username" in msg) return;
-            addMessage(msg.room, msg.username, msg.message, msg.file,true);
-        });
-
-        events.addEventListener("open", () => {
+        ws.onopen = () => {
             setConnectedStatus(true);
-            console.log(`connected to event stream at ${uri}`);
+            console.log(`connected to websocket at ${uri}`);
             retryTime = 1;
-        });
+        };
 
-        events.addEventListener("error", () => {
+        ws.onmessage = (ev) => {
+            const msg = JSON.parse(ev.data);
+            if (!msg.message || !msg.room || !msg.username) return;
+            addMessage(msg.room, msg.username, msg.message, msg.file, true);
+        };
+
+        ws.onerror = () => {
             setConnectedStatus(false);
-            events.close();
+            ws.close();
 
             let timeout = retryTime;
             retryTime = Math.min(64, retryTime * 2);
             console.log(`connection lost. attempting to reconnect in ${timeout}s`);
-            setTimeout(() => connect(uri), (() => timeout * 1000)());
-        });
+            setTimeout(() => connect(uri), timeout * 1000);
+        };
+
+        ws.onclose = () => {
+            setConnectedStatus(false);
+            console.log('WebSocket closed');
+        };
     }
 
     connect(uri);
@@ -247,7 +251,7 @@ async function init() {
         addMessage(room, "Rocket", `Look, your own "${room}" room! Nice.`, true);
     });
 
-    subscribe("/events");
+    subscribe("ws://your-server-url/events");
 }
 
 init();

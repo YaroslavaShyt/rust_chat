@@ -42,13 +42,13 @@ fn post(
 ) -> Result<(), Unauthorized<String>> {
     if let Some(token_cookie) = jar.get("jwt_token") {
         if let Ok(claims) = auth::validate_jwt(token_cookie.value()) {
-            let file = form.file.as_deref().unwrap_or(""); 
+            let file = form.file.as_deref().unwrap_or("");
 
             let new_message = NewMessage {
                 room: &form.room,
                 username: &claims.username,
                 message: &form.message,
-                file, 
+                file,
             };
 
             let conn = establish_connection();
@@ -67,23 +67,20 @@ fn post(
 
 
 #[get("/events")]
-async fn events(queue: &State<Sender<Message>>, mut end: Shutdown) -> EventStream![] {
+async fn events(ws: WebSocket, queue: &State<Sender<Message>>) -> EventStream![] {
+
     let mut rx = queue.subscribe();
 
-    EventStream! {
-        loop {
-            let msg = select! {
-                msg = rx.recv() => match msg {
-                    Ok(msg) => msg,
-                    Err(RecvError::Closed) => break,
-                    Err(RecvError::Lagged(_)) => continue,
-                },
-                _ = &mut end => break,
-            };
-            yield Event::json(&msg);
+    let mut ws = ws.await.unwrap();
+
+    while let Ok(msg) = rx.recv().await {
+        if let Err(e) = ws.send(&msg).await {
+            eprintln!("Error sending WebSocket message: {}", e);
+            break;
         }
     }
 }
+
 
 
 #[get("/chat")]
