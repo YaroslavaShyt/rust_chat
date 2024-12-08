@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Rocket Rooms</title>
+  <link rel="stylesheet" href="/chat.css">
+  <script src="/chat.js" charset="utf-8" defer></script>
+</head>
+<body>
+<main>
+  <div id="sidebar">
+    <div id="status" class="pending"></div>
+    <h1 id="username"></h1>
+    <div id="room-list">
+      <template id="room">
+        <button class="room"></button>
+      </template>
+    </div>
+    <form id="new-room">
+    </form>
+  </div>
+  <div id="content">
+    <div id="messages">
+      <template id="message">
+        <div class="message">
+          <span class="username"></span>
+          <span class="text"></span>
+          <div id="file-container">
+
+          </div>
+        </div>
+      </template>
+    </div>
+    <form id="new-message">
+      <input type="text" name="message" id="message" autocomplete="off"
+             placeholder="Send a message..." autofocus>
+      <input type="file" name="file" id="file" accept="image/*">
+      <button type="submit" id="send">Send</button>
+    </form>
+
+  </div>
+</main>
+</body>
+</html>

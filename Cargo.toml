@@ -1,0 +1,16 @@
+[package]
+name = "rust_chat"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rocket = { version = "0.5.0-rc.1", features = ["json", "default"]}
+rocket_ws = "0.1"
+tokio = { version = "1.28.1", features = ["full"] }
+tokio-tungstenite = "0.18.0"
+jsonwebtoken = "7.2.0"
+dotenv = "0.15.0"
+serde = { version = "1.0.215", features = ["derive"] }
+diesel = { version = "1.4.4", features = ["mysql", "chrono"] }
+bcrypt = "0.13.0"
+serde_json = "1.0.133"

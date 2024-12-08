@@ -1,0 +1,16 @@
+CREATE TABLE Users
+(
+    id       INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(100) NOT NULL UNIQUE,
+    token    VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE Messages
+(
+    id       INT PRIMARY KEY AUTO_INCREMENT,
+    room     VARCHAR(255) NOT NULL,
+    username VARCHAR(255) NOT NULL,
+    message  VARCHAR(255) NOT NULL,
+    file     VARCHAR(255)
+);
